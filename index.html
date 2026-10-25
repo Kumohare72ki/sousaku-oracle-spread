@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<title>創作に使えるオラクルツール</title>
+<style>
+  @charset "UTF-8";
+
+*, *::before, *::after{margin:0; padding:0; box-sizing:border-box;}
+
+img, svg{max-width:100%; height:auto; display:block;}
+
+:root{
+    --kami:#BDA686;
+    --moji:#3B2507;
+    --sashi:#3A4B87;
+    --meido:#E2D8C1;
+    --uki:#D6A22F;
+    --akai:#763028;
+    --jimi:#9A9996;
+    --koime:#585035;
+}
+
+body{color:var(--moji); background:var(--meido); line-height:1.8; font-size:1rem;}
+
+main{width:90%; max-width:40rem; margin:auto; padding:1rem 0;}
+
+nav ul{display:flex; gap:1rem; list-style:none; padding:0;}
+
+nav > ol{display:flex; gap:0.5rem; list-style:none; padding:0;}
+
+nav > ol li + li::before{content:"→"; margin-right:0.5rem; color:var(--jimi);}
+
+footer{margin-top:4rem; padding-top:2rem; border-top:1px solid var(--kami);}
+
+footer address{margin-top:1rem; font-style:normal; font-size:0.9rem;}
+
+footer nav > ul{display:grid; grid-template-columns:repeat(auto-fit, minmax(100px, 1fr)); gap:1rem;}
+
+h1, h2, h3, h4, h5, h6{line-height:1.4;}
+h1{font-size:1.8rem; font-weight:bold; margin-top:1rem;}
+h2{font-size:1.5rem; font-weight:bold; text-align:center; border-top:2px solid var(--koime); border-bottom:2px solid var(--koime); padding:0.5rem 10px;}
+h3{font-size:1.2rem; font-weight:bold; border-bottom:2px dashed var(--jimi); padding:0.3rem 0 0.3rem 10px;}
+h4{font-size:1.05rem; font-weight:bold; border-left:4px solid var(--sashi); padding-left:0.5rem;}
+
+a{color:var(--sashi); text-decoration:none;}
+a:hover, a:visited:hover{color:var(--akai); text-decoration:underline;}
+a:visited{color:var(--koime);}
+
+strong{font-weight:bold; color:var(--akai);}
+small{font-size:0.85rem; color:var(--koime);}
+
+mark{background-color:var(--uki); color:var(--moji); padding:0.1em 0.3em;}
+
+hr{margin:2rem; border:none;}
+
+blockquote{margin:1.5rem 0; padding:1rem; background:var(--kami); border-left:4px solid var(--koime); border-radius:4px;}
+blockquote p:last-child{margin-bottom:0;}
+
+ul, ol{margin-bottom:1.25rem; padding-left:1.5rem;}
+ul{list-style-type:disc;}
+ol{list-style-type:decimal;}
+li{margin-bottom:0.25rem;}
+
+details{background:rgba(255, 255, 255, 0.2); border:1px solid var(--kami); border-radius:4px; padding:0.5rem 1rem; margin-bottom:1rem;}
+details ul{display:block; list-style:none; margin-top:0.5rem; margin-bottom:0;}
+summary{list-style:none; cursor:pointer; font-weight:bold;}
+summary::-webkit-details-marker{display:none;}
+summary::before{content:"▸"; display:inline-block; width:1em; color:var(--sashi);}
+details[open] summary::before{content:"▾";}
+summary > span{display:block; font-size:small; font-weight:normal; color:var(--koime);}
+
+code, kbd, pre{font-family:monospace, serif; font-size:0.9em;}
+code{background:var(--kami); color:var(--akai); padding:0.1em 0.4em; border-radius:3px;}
+pre{background:var(--koime); color:var(--meido); padding:1rem; overflow-x:auto; border-radius:4px; margin-bottom:1.25rem;}
+pre code{background:transparent; color:inherit; padding:0;}
+
+table{width:100%; border-collapse:collapse; margin-bottom:1.5rem;}
+th, td{padding:0.6rem 0.8rem; text-align:left; border-bottom:1px solid var(--kami);}
+th{background-color:var(--kami); color:var(--moji); font-weight:bold; border-bottom:2px solid var(--koime);}
+tr:nth-child(even){background-color:rgba(255, 255, 255, 0.15);}
+
+fieldset{border:1px solid var(--kami); padding:1rem; margin-bottom:1.25rem; border-radius:4px;}
+legend{padding:0 0.5rem; font-weight:bold; color:var(--koime);}
+label{display:inline-block; margin-bottom:0.3rem; font-weight:bold;}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+textarea,
+select{width:100%; padding:0.5rem; margin-bottom:1rem; border:1px solid var(--kami); background:rgba(255, 255, 255, 0.4); color:var(--moji); border-radius:4px; font-family:inherit; font-size:1rem;}
+
+input:focus, textarea:focus, select:focus{outline:2px solid var(--sashi); background:rgba(255, 255, 255, 0.7);}
+
+button,
+input[type="submit"],
+input[type="reset"],
+input[type="button"]{display:inline-block; background:var(--sashi); color:#ffffff; border:none; padding:0.5rem 1.2rem; font-family:inherit; font-size:1rem; cursor:pointer; border-radius:4px; transition:background-color 0.2s ease;}
+
+button:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+input[type="button"]:hover{background:var(--akai);}
+
+section div {display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;}
+
+fieldset input[type="number"] {width: 5rem; margin-bottom: 0; display: inline-block;}
+
+textarea#editor {min-height: 18rem; line-height: 1.8; resize: vertical;}
+
+#timer-display {font-size: 2rem; font-family: monospace, serif; margin-right: 0.5rem;}
+
+output#char-counter {font-weight: bold; color: var(--koime); margin-left: auto;}
+
+article {border: 1px solid var(--koime); border-radius: 6px; padding: 1.2rem 1.5rem; margin-bottom: 1.5rem;}
+article h2 {font-size: 1.2rem; text-align: left; border-top: none; border-bottom: 1px solid var(--koime); padding: 0 0 0.3rem 0; margin-top: 0; margin-bottom: 0.8rem;}
+
+dl {margin-top: 0.8rem; padding-left: 0.5rem; font-size: 0.9rem;}
+
+dt {font-weight: bold; color: var(--koime); margin-top: 0.4rem;}
+
+dd {margin-left: 1rem; line-height: 1.5;}
+
+dd::before {content: "・"; color: var(--sashi);}
+</style>
+</head>
+
+<body>
+
+<main>
+    <header id="top">
+        <h1>創作に使えるオラクルツール</h1>
+    </header>
+        <article>
+            <h2><a href="tarotreading.html" target="_blank" rel="noopener noreferrer">タロット</a></h2>
+            <p>タロットのリーディング練習用</p>
+            <dl>
+                <dt>【スプレッド】</dt>
+                <dd>ワンオラクル</dd>
+                <dd>ツーオラクル</dd>
+                <dd>スリーカード</dd>
+                <dd>フォーカード</dd>
+                <dd>二者択一</dd>
+                <dd>ギリシャ十字</dd>
+                <dd>ヘキサグラム</dd>
+                <dd>ケルト十字</dd>
+            </dl>
+        </article>
+<hr>
+        <article>
+            <h2><a href="lenormandreading.html" target="_blank" rel="noopener noreferrer">ルノルマン</a></h2>
+            <p>ルノルマンのリーディング練習用。</p>
+            <dl>
+                <dt>【枚数】</dt>
+                <dd>1枚引き</dd>
+                <dd>2枚引き</dd>
+                <dd>3枚引き</dd>
+                <dd>9枚引き</dd>
+                <dd>36枚引き</dd>
+            </dl>
+        </article>
+
+</main>
+
+</body>
+</html>
