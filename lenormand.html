@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ルノルマン</title>
+    <style>
+        html{color: azure;}
+        body { font-family: sans-serif; max-width: 800px; margin: 20px auto; padding: 0 15px; line-height: 1.6; background-color: #353535; }
+        h1 { font-size: 1.5rem; color: #e9e6e6; border-bottom: 2px solid #666; padding-bottom: 10px; }
+        .controls { background: #afafaf; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        select, button { padding: 10px; font-size: 1rem; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; }
+        button { background-color: #5a67d8; color: white; border: none; transition: background 0.3s; }
+        button:hover { background-color: #434190; }
+        textarea { width: 100%; height: 400px; padding: 15px; font-size: 0.95rem; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-family: 'Courier New', Courier, monospace; background-color: #afafaf;}
+        .hint { font-size: 0.8rem; color: #bbb7b7; margin-top: 10px; }
+        details{padding: 0.5rem;}
+    </style>
+</head>
+<body>
+
+    <h1>ルノルマン</h1>
+
+    <div class="controls">
+        <label for="spread-select">枚数選択：</label>
+        <select id="spread-select">
+            <option value="1">1枚引き</option>
+            <option value="2">2枚引き</option>
+            <option value="3">3枚引き</option>
+            <option value="9">9枚引き</option>
+            <option value="36">36枚引き</option>
+        </select>
+        <button onclick="drawCards()">カードを展開する</button>
+    </div>
+
+    <textarea id="result-area" placeholder="ここに結果が表示されます。そのまま書き込んだりコピーしたりできます。"></textarea>
+
+<details>
+    <summary>一覧</summary>
+    <div>
+        <details><summary>1. 騎士</summary><div><p>知らせ、訪問者、新しい情報、速い動き</p></div></details>
+        <details><summary>2. クローバー</summary><div><p>小さな幸運、チャンス、楽観、短い時間</p></div></details>
+        <details><summary>3. 船</summary><div><p>旅、移動、遠距離、変化、貿易</p></div></details>
+        <details><summary>4. 家</summary><div><p>家庭、安定、安心、不動産、身近な場所</p></div></details>
+        <details><summary>5. 木</summary><div><p>健康、成長、時間のかかること、ルーツ</p></div></details>
+        <details><summary>6. 雲</summary><div><p>不安、混乱、不透明さ、一時的な問題</p></div></details>
+        <details><summary>7. 蛇</summary><div><p>裏切り、嫉妬、問題、賢い女性、回り道</p></div></details>
+        <details><summary>8. 棺</summary><div><p>終わり、病気、損失、完了、停滞</p></div></details>
+        <details><summary>9. 花束</summary><div><p>喜び、贈り物、感謝、招待、美しさ</p></div></details>
+        <details><summary>10. 鎌</summary><div><p>突然の出来事、決断、収穫、危険、切断</p></div></details>
+        <details><summary>11. 鞭</summary><div><p>対立、議論、繰り返し、トレーニング、痛み</p></div></details>
+        <details><summary>12. 鳥</summary><div><p>コミュニケーション、噂、心配事、二人組</p></div></details>
+        <details><summary>13. 子ども</summary><div><p>新しい始まり、子ども、未熟さ、小さいもの</p></div></details>
+        <details><summary>14. 狐</summary><div><p>策略、賢さ、仕事、自己防衛、嘘</p></div></details>
+        <details><summary>15. 熊</summary><div><p>力、権威、保護、リーダー、財政</p></div></details>
+        <details><summary>16. 星</summary><div><p>希望、導き、夢、インスピレーション、運命</p></div></details>
+        <details><summary>17. コウノトリ</summary><div><p>変化、移動、引っ越し、妊娠、改善</p></div></details>
+        <details><summary>18. 犬</summary><div><p>友情、忠誠、信頼、助け</p></div></details>
+        <details><summary>19. 塔</summary><div><p>権威、組織、孤立、公的な場所、境界</p></div></details>
+        <details><summary>20. 庭園</summary><div><p>公の場、社交、イベント、コミュニティ</p></div></details>
+        <details><summary>21. 山</summary><div><p>障害、遅延、困難、乗り越えるべき壁</p></div></details>
+        <details><summary>22. 道</summary><div><p>選択、決断、複数の可能性、新しい道</p></div></details>
+        <details><summary>23. 鼠</summary><div><p>損失、盗難、ストレス、不安、消耗</p></div></details>
+        <details><summary>24. ハート</summary><div><p>愛、情熱、ロマンス、幸福、感情</p></div></details>
+        <details><summary>25. 指輪</summary><div><p>契約、約束、パートナーシップ、結婚、絆</p></div></details>
+        <details><summary>26. 本</summary><div><p>秘密、知識、学習、隠された情報</p></div></details>
+        <details><summary>27. 手紙</summary><div><p>メッセージ、情報、書類、コミュニケーション</p></div></details>
+        <details><summary>28. 紳士</summary><div><p>男性の象徴（質問者、パートナーなど）</p></div></details>
+        <details><summary>29. 淑女</summary><div><p>女性の象徴（質問者、パートナーなど）</p></div></details>
+        <details><summary>30. 百合</summary><div><p>純粋さ、平和、成熟、セクシュアリティ、家族</p></div></details>
+        <details><summary>31. 太陽</summary><div><p>成功、幸福、エネルギー、勝利、明快さ</p></div></details>
+        <details><summary>32. 月</summary><div><p>感情、直感、名声、ロマンス、無意識</p></div></details>
+        <details><summary>33. 鍵</summary><div><p>解決策、重要なこと、成功への扉、確実性</p></div></details>
+        <details><summary>34. 魚</summary><div><p>財産、ビジネス、豊かさ、流れ</p></div></details>
+        <details><summary>35. 錨</summary><div><p>安定、仕事、長期的な関係、ゴール</p></div></details>
+        <details><summary>36. 十字架</summary><div><p>宿命、試練、責任、苦しみ、終わり</p></div></details>
+    </div>
+</details>
+
+
+    <script>
+        const cards = [
+                '1.騎手', '2.クローバー', '3.船', '4.家', '5.木', '6.雲',
+                '7.蛇', '8.棺', '9.花束', '10.鎌', '11.鞭', '12.鳥',
+                '13.子供', '14.狐', '15.熊', '16.星', '17.コウノトリ', '18.犬',
+                '19.塔', '20.庭園', '21.山', '22.道', '23.ネズミ', '24.ハート',
+                '25.指輪', '26.本', '27.手紙', '28.紳士', '29.淑女', '30.ユリ',
+                '31.太陽', '32.月', '33.鍵', '34.魚', '35.錨', '36.十字架'
+        ];
+
+        function drawCards() {
+            const selectEl = document.getElementById('spread-select');
+            const drawCount = parseInt(selectEl.value, 10);
+            const spreadName = selectEl.options[selectEl.selectedIndex].text;
+            
+            const deck = [...cards];
+            let resultText = `【${spreadName}】\n`;
+            resultText += `---\n`;
+
+            // シャッフル
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+
+            // カード展開 (指定枚数分だけループ処理)
+            for (let i = 0; i < drawCount; i++) {
+                const card = deck[i];
+                resultText += `${i + 1}枚目：【${card}】\n`;
+            }
+
+            document.getElementById('result-area').value = resultText;
+        }
+    </script>
+</body>
+</html>
