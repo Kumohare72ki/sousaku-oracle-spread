@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ソろぐ</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #212529;
+            color: #dee2e6;
+            line-height: 1.6;
+            margin: 20px;
+        }
+
+        body > h1,
+        .controls-container,
+        .journal-container,
+        .actions-container,
+        .keywords-section {
+            max-width: 50rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #f8f9fa;
+        }
+
+        .controls-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #343a40;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #495057;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        select, button {
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: #495057;
+            color: #f8f9fa;
+            border: 1px solid #6c757d;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        button:hover {
+            background-color: #0b5ed7;
+        }
+
+        .journal-container {
+            margin-bottom: 20px;
+        }
+
+        #journal-textarea {
+            width: 100%;
+            height: 300px;
+            padding: 10px;
+            font-size: 16px;
+            line-height: 1.5;
+            border-radius: 5px;
+            box-sizing: border-box;
+            resize: vertical;
+            background-color: #495057;
+            color: #f8f9fa;
+            border: 1px solid #6c757d;
+        }
+
+        .actions-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        #save-btn {
+            background-color: #198754;
+            border-color: #198754;
+        }
+
+        #save-btn:hover {
+            background-color: #157347;
+        }
+        
+        /* --- キーワード一覧 --- */
+        .keywords-section h3 {
+            border-bottom: 2px solid #495057;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        details {
+            border: 1px solid #495057;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background-color: #343a40;
+        }
+        details[open] {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        summary {
+            font-weight: bold;
+            padding: 12px 15px;
+            cursor: pointer;
+            background-color: #495057;
+            border-radius: 4px;
+            position: relative;
+        }
+        details[open] > summary {
+            border-bottom: 1px solid #6c757d;
+        }
+
+        summary:hover {
+            background-color: #5a6268;
+        }
+
+        .content {
+            padding: 10px 15px;
+        }
+        
+        .content > details {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>ソろぐ</h1>
+    <p style="font-size: 0.8rem; text-align: center;">ソロジャーナルのログを記録するためのツールだったはずが何かいっぱい機能ついたやつ。</p>
+
+    <div class="controls-container">
+        <!-- アストロダイス -->
+        <div class="control-group">
+            <label>アストロ</label>
+            <button id="roll-astro-dice-btn">振る</button>
+        </div>
+
+        <!-- ダイス -->
+        <div class="control-group">
+            <select id="dice-select">
+                <option value="coin">コイントス</option>
+                <option value="1d4" selected>1d4</option>
+                <option value="1d6" selected>1d6</option>
+                <option value="1d8" selected>1d8</option>
+                <option value="1d10">1d10</option>
+                <option value="1d12">1d12</option>
+                <option value="1d20">1d20</option>
+                <option value="1d30">1d30</option>
+                <option value="1d100">1d100</option>
+                <option value="d66">d66</option>
+                <option value="d33">d33</option>
+            </select>
+            <button id="roll-dice-btn">振る</button>
+        </div>
+
+        <!-- カード -->
+        <div class="control-group">
+            <select id="card-select">
+                <option value="full-tarot" selected>タロット</option>
+                <option value="lenormand">ルノルマン</option>
+                <option value="trump">トランプ</option>
+            </select>
+            <select id="draw-count-select">
+                <option value="1">1枚</option>
+                <option value="2">2枚</option>
+                <option value="3">3枚</option>
+                <option value="4">4枚</option>
+                <option value="5">5枚</option>
+                <option value="6">6枚</option>
+                <option value="7">7枚</option>
+                <option value="8">8枚</option>
+                <option value="9">9枚</option>
+                <option value="10">10枚</option>
+            </select>
+            <button id="draw-card-btn">引く</button>
+            <button id="reset-deck-btn">リセット</button>
+        </div>
+        <div class="control-group">
+            <label>積み木</label>
+            <select id="block-pos-select">
+                <option value="top">上段付近</option>
+                <option value="mid" selected>中段付近</option>
+                <option value="bot">下段付近</option>
+            </select>
+            <select id="block-speed-select">
+                <option value="slow">ゆっくり</option>
+                <option value="fast">素早く</option>
+            </select>
+            <button id="pull-block-btn">抜く</button>
+        </div>
+
+    </div>
+
+    <div class="journal-container">
+        <textarea id="journal-textarea" placeholder="ここに記録を書き留めます..."></textarea>
+    </div>
+
+    <div class="actions-container">
+        <button id="copy-btn">内容をコピー</button>
+        <button id="save-btn">テキストファイルとして保存</button>
+    </div>
+
+    <section class="keywords-section">
+        <h2>キーワード一覧</h2>
+        <h3>タロット</h3>
+        <details>
+                <summary>大アルカナ</summary>
+                <details>
+                    <summary>0. 愚者</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 自由、冒険、新しい始まり、無限の可能性、好奇心</p>
+                        <p><strong>逆位置:</strong> 無計画、軽率、責任回避、愚かな行動</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>I. 魔術師</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 才能の発揮、チャンス到来、創造、 意志の力</p>
+                        <p><strong>逆位置:</strong> 準備不足、未熟、詐欺、優柔不断</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>II. 女教皇</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 直感、知恵、静かな洞察、秘密</p>
+                        <p><strong>逆位置:</strong> 不安、感情の揺れ、秘密主義、わがまま</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>III. 女帝</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 愛情、豊かさ、創造性、繁栄</p>
+                        <p><strong>逆位置:</strong> 過剰、嫉妬、怠惰、浪費</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>IV. 皇帝</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 権威、リーダーシップ、安定、責任感</p>
+                        <p><strong>逆位置:</strong> 傲慢、独善的、未熟、無力</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>V. 教皇</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 慈悲、伝統、社会的規範、助言</p>
+                        <p><strong>逆位置:</strong> 不信、束縛、偽善、保守的</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>VI. 恋人</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 選択、恋愛、調和、情熱</p>
+                        <p><strong>逆位置:</strong> 誘惑、不誠実、優柔不断、誤った選択</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>VII. 戦車</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 前進、勝利、意志の力、行動力</p>
+                        <p><strong>逆位置:</strong> 暴走、挫折、制御不能、自己中心的</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>VIII. 力</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 意志の強さ、理性、忍耐、勇気</p>
+                        <p><strong>逆位置:</strong> 無力感、甘え、自信喪失、本能に負ける</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>IX. 隠者</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 探求、内省、思慮深さ、孤独</p>
+                        <p><strong>逆位置:</strong> 閉鎖的、孤立、非現実的、秘密主義</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>X. 運命の輪</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 転機、幸運、チャンス、運命的な出会い</p>
+                        <p><strong>逆位置:</strong> 不運、停滞、状況の悪化、すれ違い</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>XI. 正義</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 公平、正当な判断、バランス、誠実</p>
+                        <p><strong>逆位置:</strong> 不公平、不正、偏見、不均衡</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>XII. 吊るされた男</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 試練、自己犠牲、忍耐、新たな視点</p>
+                        <p><strong>逆位置:</strong> 徒労、無駄な努力、自己中心的、投げやり</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>XIII. 死神</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 終わりと再生、大きな変化、区切り</p>
+                        <p><strong>逆位置:</strong> 停滞、変化への抵抗、惰性、過去への執着</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>XIV. 節制</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 調和、バランス、順応性、堅実</p>
+                        <p><strong>逆位置:</strong> 不摂生、浪費、不安定、人間関係の不和</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>XV. 悪魔</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 誘惑、束縛、執着、堕落</p>
+                        <p><strong>逆位置:</strong> 解放、束縛からの解放、悪習慣を断つ</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>XVI. 塔</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 突然のアクシデント、崩壊、衝撃的な出来事</p>
+                        <p><strong>逆位置:</strong> 不安定な状況、瀬戸際、予期せぬトラブル</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>XVII. 星</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 希望、閃き、理想、目標達成</p>
+                        <p><strong>逆位置:</strong> 失望、高望み、無気力、現実逃避</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>XVIII. 月</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 不安、嘘、曖昧さ、潜在的な問題</p>
+                        <p><strong>逆位置:</strong> 不安の解消、真実が見える、状況の好転</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>XIX. 太陽</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 成功、喜び、祝福、エネルギーに満ちる</p>
+                        <p><strong>逆位置:</strong> 中断、エネルギーの低下、不調、一時的な失敗</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>XX. 審判</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 復活、再生、決断、良い知らせ</p>
+                        <p><strong>逆位置:</strong> 後悔、過去への執着、悪い知らせ、決断できない</p>
+                    </div>
+                </details>
+                <details>
+                    <summary>XXI. 世界</summary>
+                    <div class="content">
+                        <p><strong>正位置:</strong> 完成、完璧、成功、幸福</p>
+                        <p><strong>逆位置:</strong> 未完成、中途半端、停滞、調和の崩壊</p>
+                    </div>
+                </details>
+
+            </div>
+        </details>
+        <details>
+            <summary>小アルカナ</summary>
+            <div class="content">
+                <details>
+                    <summary>ワンド</summary>
+                    <div class="content">
+                        <details>
+                            <summary>ワンドのエース</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 創造力、出発点、新しい始まり、情熱</p>
+                                <p><strong>逆位置:</strong> 失敗、無気力、計画倒れ、エネルギーの喪失</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ワンドの2</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 計画、未来への展望、選択、パートナーシップ</p>
+                                <p><strong>逆位置:</strong> 不安な未来、計画の失敗、優柔不断</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ワンドの3</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 期待、探求、協力者、挑戦</p>
+                                <p><strong>逆位置:</strong> 停滞、失望、諦め、計画倒れ</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ワンドの4</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 安定、平和、祝福、休息</p>
+                                <p><strong>逆位置:</strong> 不安定、不和、未完成、満足できない</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ワンドの5</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 競争、対立、切磋琢磨、議論</p>
+                                <p><strong>逆位置:</strong> 争い、不和、敗北、無駄な競争</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ワンドの6</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 勝利、成功、賞賛、リーダーシップ</p>
+                                <p><strong>逆位置:</strong> 敗北、不評、裏切り、自信喪失</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ワンドの7</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 優位、有利な立場、勇気、自己防衛</p>
+                                <p><strong>逆位置:</strong> 不利な状況、劣勢、優柔不断、躊躇</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ワンドの8</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 急展開、素早い行動、旅行、良い知らせ</p>
+                                <p><strong>逆位置:</strong> 停滞、遅延、予期せぬ障害、悪い知らせ</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ワンドの9</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 警戒、守備、粘り強さ、困難への備え</p>
+                                <p><strong>逆位置:</strong> 降伏、無防備、疲労、諦め</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ワンドの10</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 重圧、過労、責任、忍耐</p>
+                                <p><strong>逆位置:</strong> 責任転嫁、手放す、限界、ストレスからの解放</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ワンドのペイジ</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 好奇心、情熱的な若者、新しいニュース、探求心</p>
+                                <p><strong>逆位置:</strong> 未熟、悪い知らせ、衝動的、優柔不断</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ワンドのナイト</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 情熱的、行動力、冒険、変化</p>
+                                <p><strong>逆位置:</strong> 衝動的、無鉄砲、焦り、対立</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ワンドのクイーン</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 魅力的、自信、情熱的、リーダーシップ</p>
+                                <p><strong>逆位置:</strong> 嫉妬深い、自己中心的、ヒステリック、不機嫌</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ワンドのキング</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> カリスマ性、リーダーシップ、情熱、創造性</p>
+                                <p><strong>逆位置:</strong> 独裁的、横暴、無責任、衝動的</p>
+                            </div>
+                        </details>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>カップ</summary>
+                    <div class="content">
+                        <details>
+                            <summary>カップのエース</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 愛情の始まり、喜び、幸福、新しい関係</p>
+                                <p><strong>逆位置:</strong> 愛情の枯渇、悲しみ、不安定な感情、報われない愛</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>カップの2</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 相思相愛、パートナーシップ、友情、調和</p>
+                                <p><strong>逆位置:</strong> すれ違い、別れ、不和、誤解</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>カップの3</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 祝福、友情、喜びの共有、協力</p>
+                                <p><strong>逆位置:</strong> 三角関係、不誠実、快楽主義、孤立</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>カップの4</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 不満、倦怠感、無関心、機会を逃す</p>
+                                <p><strong>逆位置:</strong> 新しい可能性、やる気の回復、変化の兆し</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>カップの5</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 喪失感、失望、悲しみ、後悔</p>
+                                <p><strong>逆位置:</strong> 再起、立ち直り、新しい希望、許し</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>カップの6</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 純粋な心、懐かしい思い出、過去からの贈り物</p>
+                                <p><strong>逆位置:</strong> 過去への執着、現実逃避、幼さ</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>カップの7</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 夢、幻想、多くの選択肢、想像力</p>
+                                <p><strong>逆位置:</strong> 現実を見る、目標設定、幻想からの覚醒</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>カップの8</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 新たな探求、現状からの離脱、精神的な探求</p>
+                                <p><strong>逆位置:</strong> 停滞、現実逃避、執着、現状維持</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>カップの9</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 願いが叶う、満足、幸福、物質的な豊かさ</p>
+                                <p><strong>逆位置:</strong> 不満、欲望、自己中心的、満たされない</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>カップの10</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 幸福な家庭、愛情、平和、永続的な幸福</p>
+                                <p><strong>逆位置:</strong> 家庭内の不和、崩壊、偽りの幸福</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>カップのペイジ</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 感受性豊か、ロマンチスト、直感、良い知らせ</p>
+                                <p><strong>逆位置:</strong> 未熟な感情、現実逃避、傷つきやすい、悪い知らせ</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>カップのナイト</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 魅力的な提案、ロマンス、優しさ、理想主義</p>
+                                <p><strong>逆位置:</strong> 詐欺、不誠実、気まぐれ、甘い誘惑</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>カップのクイーン</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 慈愛、優しさ、共感、癒し</p>
+                                <p><strong>逆位置:</strong> 感情的、ヒステリック、嫉妬、自己中心的</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>カップのキング</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 寛大、包容力、誠実、感情のコントロール</p>
+                                <p><strong>逆位置:</strong> 不誠実、感情の抑制、冷淡、偽善</p>
+                            </div>
+                        </details>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>ソード</summary>
+                    <div class="content">
+                        <details>
+                            <summary>ソードのエース</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 勝利、決断、知性、新しい始まり</p>
+                                <p><strong>逆位置:</strong> 敗北、混乱、誤った判断、破壊的な力</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>ソードの2</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 均衡、停戦、決断の延期、冷静な判断</p>
+                                <p><strong>逆位置:</strong> 板挟み、優柔不断、対立、不誠実</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>ソードの3</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 悲しみ、傷心、別れ、困難な真実</p>
+                                <p><strong>逆位置:</strong> 混乱、悲しみの克服、回復、さらなる混乱</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>ソードの4</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 休息、充電期間、一時的な停戦、内省</p>
+                                <p><strong>逆位置:</strong> 活動再開、回復、混乱、孤立</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>ソードの5</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 敗北、不名誉な勝利、対立、自己中心的</p>
+                                <p><strong>逆位置:</strong> 和解、解放、後悔、悪意</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>ソードの6</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 新しい場所へ、困難からの脱出、旅立ち</p>
+                                <p><strong>逆位置:</strong> 停滞、進めない状況、困難、問題の先送り</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>ソードの7</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 策略、裏切り、秘密の行動、逃避</p>
+                                <p><strong>逆位置:</strong> 計画の露呈、謝罪、アドバイスを受け入れる</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>ソードの8</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 束縛、孤立、困難な状況、無力感</p>
+                                <p><strong>逆位置:</strong> 解放、自由、束縛からの脱出、新しい視点</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>ソードの9</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 不安、絶望、悪夢、罪悪感</p>
+                                <p><strong>逆位置:</strong> 希望の兆し、不安の解消、回復、秘密の暴露</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>ソードの10</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 破滅、終わり、どん底、夜明け前</p>
+                                <p><strong>逆位置:</strong> 回復、好転、再生、一時的な休息</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>ソードのペイジ</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 好奇心旺盛、警戒心、情報収集、スパイ</p>
+                                <p><strong>逆位置:</strong> 噂話、不注意、詮索、悪い知らせ</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>ソードのナイト</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 突進、勇敢、決断力、行動力</p>
+                                <p><strong>逆位置:</strong> 衝動的、攻撃的、無謀、争い</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>ソードのクイーン</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 知的、冷静、自立、的確な判断</p>
+                                <p><strong>逆位置:</strong> 批判的、冷酷、偏見、悲観的</p>
+                            </div>
+                        </details>
+                         <details>
+                            <summary>ソードのキング</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 知的、権威、決断力、公正な判断</p>
+                                <p><strong>逆位置:</strong> 権威の乱用、冷酷、非難、不公平</p>
+                            </div>
+                        </details>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>ペンタクル</summary>
+                    <div class="content">
+                        <details>
+                            <summary>ペンタクルのエース</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 豊かさの始まり、安定、具体的な成果、幸運</p>
+                                <p><strong>逆位置:</strong> 損失、機会を逃す、不安定、貪欲</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ペンタクルの2</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 柔軟性、バランス、臨機応変、やりくり</p>
+                                <p><strong>逆位置:</strong> 不安定、優柔不断、不器用、計画性のなさ</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ペンタクルの3</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 協力、スキルアップ、評価される、チームワーク</p>
+                                <p><strong>逆位置:</strong> 未熟、協力の欠如、停滞、評価されない</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ペンタクルの4</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 所有、安定、執着、守り</p>
+                                <p><strong>逆位置:</strong> 損失、手放す、不安定、貪欲</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ペンタクルの5</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 困難、貧困、孤独、試練</p>
+                                <p><strong>逆位置:</strong> 回復の兆し、希望、助け、状況の改善</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ペンタクルの6</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 慈善、与えること、公平さ、援助</p>
+                                <p><strong>逆位置:</strong> 不公平、自己満足、見返りを求める、借金</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ペンタクルの7</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 忍耐、努力の成果、見直し、成長</p>
+                                <p><strong>逆位置:</strong> 焦り、不満、停滞、努力不足</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ペンタクルの8</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 職人技、勤勉、スキルアップ、集中</p>
+                                <p><strong>逆位置:</strong> 怠惰、手抜き、未熟、平凡</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ペンタクルの9</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 成功、豊かさ、自立、優雅な生活</p>
+                                <p><strong>逆位置:</strong> 孤独、浪費、不安定、満たされない</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ペンタクルの10</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 繁栄、家族の財産、安定、伝統</p>
+                                <p><strong>逆位置:</strong> 財産の損失、家庭内の不和、不安定、伝統の崩壊</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ペンタクルのペイジ</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 勤勉な若者、学習意欲、堅実、良い知らせ</p>
+                                <p><strong>逆位置:</strong> 怠惰、未熟、悪い知らせ、計画性のなさ</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ペンタクルのナイト</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 誠実、責任感、勤勉、着実な進歩</p>
+                                <p><strong>逆位置:</strong> 頑固、停滞、怠惰、無責任</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ペンタクルのクイーン</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 母性的、豊かさ、堅実、安定</p>
+                                <p><strong>逆位置:</strong> 過保護、嫉妬、浪費、不安</p>
+                            </div>
+                        </details>
+                        <details>
+                            <summary>ペンタクルのキング</summary>
+                            <div class="content">
+                                <p><strong>正位置:</strong> 成功、豊かさ、安定、信頼</p>
+                                <p><strong>逆位置:</strong> 貪欲、腐敗、無責任、頑固</p>
+                            </div>
+                        </details>
+            </div>
+        </details>
+        </details>
+
+        <h3>ルノルマンカード</h3>
+        <details>
+            <summary>一覧</summary>
+            <div class="content">
+                <details><summary>1. 騎士</summary><div class="content"><p>知らせ、訪問者、新しい情報、速い動き</p></div></details>
+                <details><summary>2. クローバー</summary><div class="content"><p>小さな幸運、チャンス、楽観、短い時間</p></div></details>
+                <details><summary>3. 船</summary><div class="content"><p>旅、移動、遠距離、変化、貿易</p></div></details>
+                <details><summary>4. 家</summary><div class="content"><p>家庭、安定、安心、不動産、身近な場所</p></div></details>
+                <details><summary>5. 木</summary><div class="content"><p>健康、成長、時間のかかること、ルーツ</p></div></details>
+                <details><summary>6. 雲</summary><div class="content"><p>不安、混乱、不透明さ、一時的な問題</p></div></details>
+                <details><summary>7. 蛇</summary><div class="content"><p>裏切り、嫉妬、問題、賢い女性、回り道</p></div></details>
+                <details><summary>8. 棺</summary><div class="content"><p>終わり、病気、損失、完了、停滞</p></div></details>
+                <details><summary>9. 花束</summary><div class="content"><p>喜び、贈り物、感謝、招待、美しさ</p></div></details>
+                <details><summary>10. 鎌</summary><div class="content"><p>突然の出来事、決断、収穫、危険、切断</p></div></details>
+                <details><summary>11. 鞭</summary><div class="content"><p>対立、議論、繰り返し、トレーニング、痛み</p></div></details>
+                <details><summary>12. 鳥</summary><div class="content"><p>コミュニケーション、噂、心配事、二人組</p></div></details>
+                <details><summary>13. 子ども</summary><div class="content"><p>新しい始まり、子ども、未熟さ、小さいもの</p></div></details>
+                <details><summary>14. 狐</summary><div class="content"><p>策略、賢さ、仕事、自己防衛、嘘</p></div></details>
+                <details><summary>15. 熊</summary><div class="content"><p>力、権威、保護、リーダー、財政</p></div></details>
+                <details><summary>16. 星</summary><div class="content"><p>希望、導き、夢、インスピレーション、運命</p></div></details>
+                <details><summary>17. コウノトリ</summary><div class="content"><p>変化、移動、引っ越し、妊娠、改善</p></div></details>
+                <details><summary>18. 犬</summary><div class="content"><p>友情、忠誠、信頼、助け</p></div></details>
+                <details><summary>19. 塔</summary><div class="content"><p>権威、組織、孤立、公的な場所、境界</p></div></details>
+                <details><summary>20. 庭園</summary><div class="content"><p>公の場、社交、イベント、コミュニティ</p></div></details>
+                <details><summary>21. 山</summary><div class="content"><p>障害、遅延、困難、乗り越えるべき壁</p></div></details>
+                <details><summary>22. 道</summary><div class="content"><p>選択、決断、複数の可能性、新しい道</p></div></details>
+                <details><summary>23. 鼠</summary><div class="content"><p>損失、盗難、ストレス、不安、消耗</p></div></details>
+                <details><summary>24. ハート</summary><div class="content"><p>愛、情熱、ロマンス、幸福、感情</p></div></details>
+                <details><summary>25. 指輪</summary><div class="content"><p>契約、約束、パートナーシップ、結婚、絆</p></div></details>
+                <details><summary>26. 本</summary><div class="content"><p>秘密、知識、学習、隠された情報</p></div></details>
+                <details><summary>27. 手紙</summary><div class="content"><p>メッセージ、情報、書類、コミュニケーション</p></div></details>
+                <details><summary>28. 紳士</summary><div class="content"><p>男性の象徴（質問者、パートナーなど）</p></div></details>
+                <details><summary>29. 淑女</summary><div class="content"><p>女性の象徴（質問者、パートナーなど）</p></div></details>
+                <details><summary>30. 百合</summary><div class="content"><p>純粋さ、平和、成熟、セクシュアリティ、家族</p></div></details>
+                <details><summary>31. 太陽</summary><div class="content"><p>成功、幸福、エネルギー、勝利、明快さ</p></div></details>
+                <details><summary>32. 月</summary><div class="content"><p>感情、直感、名声、ロマンス、無意識</p></div></details>
+                <details><summary>33. 鍵</summary><div class="content"><p>解決策、重要なこと、成功への扉、確実性</p></div></details>
+                <details><summary>34. 魚</summary><div class="content"><p>財産、ビジネス、豊かさ、流れ</p></div></details>
+                <details><summary>35. 錨</summary><div class="content"><p>安定、仕事、長期的な関係、ゴール</p></div></details>
+                <details><summary>36. 十字架</summary><div class="content"><p>宿命、試練、責任、苦しみ、終わり</p></div></details>
+            </div>
+        </details>
+
+        <h3>アストロダイス</h3>
+        <details>
+            <summary>天体</summary>
+            <div class="content">
+                    <details><summary>太陽</summary><p>目的、生命力、公的自己、自分自身、目標、自分の人生、あるべき姿、自我、アイデンティティ、夫、父、指導者</p></details>
+                    <details><summary>月</summary><p>感情、無意識、プライベート、素の自分、心、日常的な感情の流れ、内なる安定感、家庭、妻、母、幼少期の環境、体質</p></details>
+                    <details><summary>水星</summary><p>知性、伝達、段取り、コミュニケーション、学び方、言葉、情報伝達、論理的な判断力、児童</p></details>
+                    <details><summary>金星</summary><p>美、愛、快楽、価値、美意識、楽しいもの、センス、調和、愛情、少女、思春期、恋愛傾向、お金</p></details>
+                    <details><summary>火星</summary><p>情熱、行動、闘争、営業力、攻撃力、エネルギー、競争心、男性、性的傾向、好きな男性のタイプ</p></details>
+                    <details><summary>木星</summary><p>拡大、発展、幸運、成長、繁栄、成功、豊かさ、学び、教え、販路が広がる、増やす力、富、財、理想、教師</p></details>
+                    <details><summary>土星</summary><p>制限、責任、試練、ルール、厳格、骨組み、時間、減らす力、忍耐力、規則</p></details>
+                    <details><summary>天王星</summary><p>変化、独立、革命、流行、とびぬけたもの、電気、突飛な、突然の事態、予期せぬ出来事、変革</p></details>
+                    <details><summary>海王星</summary><p>幻想、癒やし、曖昧、イマジネーション、夢、霧、形のないもの、映像、芸術、無意識、霊性、直感、現実を超えた世界、霊的な体験</p></details>
+                    <details><summary>冥王星</summary><p>破壊と再生、究極、強制的変化、無から有を生む力、カリスマ、変容</p></details>
+                    <details><summary>ドラゴンヘッド</summary><p>未来への扉、運命を開く扉、前世からの縁、これからの未来、開運、魂の使命、成長</p></details>
+                    <details><summary>ドラゴンテイル</summary><p>過去の清算（けじめ）、強い縁、過去生、人との深い関わり、過去のカルマ、解放、執着</p></details>
+            </div>
+        </details>
+        <details>
+            <summary>星座</summary>
+                    <details><summary>牡羊座</summary><p>行動力、情熱、始める、ひらめき、チャレンジ、戦う力、新たな始まり</p></details>
+                    <details><summary>牡牛座</summary><p>美意識、五感、美しいもの、芸術、マイペース、安定、実直さ、物質的な価値観</p></details>
+                    <details><summary>双子座</summary><p>コミュニケーション、情報、伝える力、散歩、言葉、好奇心、柔軟性、知識欲</p></details>
+                    <details><summary>蟹座</summary><p>家、心地良い場所、身内、家族、感情、情緒、保護、感受性、家庭愛</p></details>
+                    <details><summary>獅子座</summary><p>表現、娯楽、舞台、輝く、自分を生きる、自己表現、創造性、リーダーシップ、自信</p></details>
+                    <details><summary>乙女座</summary><p>整理整頓、サポート、分析、几帳面、リアリズム、健康、奉仕精神、健康への意識</p></details>
+                    <details><summary>天秤座</summary><p>調和、客観美、パートナー、バランス、ファッション、社交性、美意識</p></details>
+                    <details><summary>蠍座</summary><p>スぺシャリスト、深層心理、洞察、本質、性、融合、深い感情、変容、情熱、探求心</p></details>
+                    <details><summary>射手座</summary><p>海外、専門性、大学、高度な学問、移動、哲学、冒険、自由、理想追求、探索</p></details>
+                    <details><summary>山羊座</summary><p>仕事、社会、責任、会社、実力、成果、伝統、時間、野心、実績、現実主義</p></details>
+                    <details><summary>水瓶座</summary><p>自由、独立、平和、平等、自立、SNS、ユニーク、論理的、革新、独創性、未来志向</p></details>
+                    <details><summary>魚座</summary><p>アート、ビジョン、スピリチュアリティー、枠を超える、夢、直感、霊性、共感力</p></details>
+        </details>
+        <details>
+            <summary>ハウス</summary>
+            <div class="content">
+                    <details><summary>第1ハウス</summary><p>自分自身、キャラクター、セルフイメージ、見た目、個性、自我、新たな計画の始まり</p></details>
+                    <details><summary>第2ハウス</summary><p>才能、自分で稼ぐ力、所有、特技、金運、財産、物質的価値、価値観、生まれ持った資質</p></details>
+                    <details><summary>第3ハウス</summary><p>コミュニケーション能力、兄弟姉妹、近場の移動、基礎学習、おしゃべり、知性、情報の交換</p></details>
+                    <details><summary>第4ハウス</summary><p>家、安心する居場所、家族、事務所、ルーツ、心の基盤、過去、母親、不動産</p></details>
+                    <details><summary>第5ハウス</summary><p>恋愛、子供、楽しみ、娯楽、創作、趣味、表現、自己表現、投資</p></details>
+                    <details><summary>第6ハウス</summary><p>仕事、習慣、健康、雇用、ルーティンワーク、労働、他者への奉仕、体調管理</p></details>
+                    <details><summary>第7ハウス</summary><p>パートナーシップ、結婚、人間関係、契約、一対一の関係、ビジネスパートナー</p></details>
+                    <details><summary>第8ハウス</summary><p>パートナーの資産、遺産、継承するもの、性、遺伝、保険、生と死、変容、秘密、深層心理</p></details>
+                    <details><summary>第9ハウス</summary><p>大学、海外、旅、高度な学問、専門性、遠方、哲学、冒険、精神的な探求</p></details>
+                    <details><summary>第10ハウス</summary><p>社会、会社、天職、キャリア、地位、権威、名声、人生の到達点、目標達成、社会的役割</p></details>
+                    <details><summary>第11ハウス</summary><p>友人、未来への希望、ネットワーク、勉強会、サークル活動、将来、社会改革、理想的な目標</p></details>
+                    <details><summary>第12ハウス</summary><p>隠されたもの、潜在意識、スピリチュアル、過去、秘密、メディア、自己探求、癒やし、孤独</p></details>
+            </div>
+        </details>
+
+</section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 要素の取得
+            const diceSelect = document.getElementById('dice-select');
+            const rollDiceBtn = document.getElementById('roll-dice-btn');
+            const cardSelect = document.getElementById('card-select');
+            const drawCardBtn = document.getElementById('draw-card-btn');
+            const journalTextarea = document.getElementById('journal-textarea');
+            const copyBtn = document.getElementById('copy-btn');
+            const saveBtn = document.getElementById('save-btn');
+            const rollAstroDiceBtn = document.getElementById('roll-astro-dice-btn');
+            const resetDeckBtn = document.getElementById('reset-deck-btn');
+            const drawCountSelect = document.getElementById('draw-count-select');
+
+            // 積み木用要素
+            const blockPosSelect = document.getElementById('block-pos-select');
+            const blockSpeedSelect = document.getElementById('block-speed-select');
+            const pullBlockBtn = document.getElementById('pull-block-btn');
+
+            // --- データ定義 ---
+            const trumpCardsMaster = ['ハート', 'ダイヤ', 'クラブ', 'スペード'].flatMap(s => ['A','2','3','4','5','6','7','8','9','10','J','Q','K'].map(r => `${s}の${r}`)).concat(['ジョーカー']);
+            const majorArcanaMaster = ['0.愚者', 'I.魔術師', 'II.女教皇', 'III.女帝', 'IV.皇帝', 'V.教皇', 'VI.恋人', 'VII.戦車', 'VIII.力', 'IX.隠者', 'X.運命の輪', 'XI.正義', 'XII.吊るされた男', 'XIII.死神', 'XIV.節制', 'XV.悪魔', 'XVI.塔', 'XVII.星', 'XVIII.月', 'XIX.太陽', 'XX.審判', 'XXI.世界'];
+            const minorArcanaMaster = ['ワンド', 'カップ', 'ソード', 'ペンタクル'].flatMap(s => ['A','2','3','4','5','6','7','8','9','10','ペイジ','ナイト','クイーン','キング'].map(r => `${s}の${r}`));
+            const fullTarotMaster = [...majorArcanaMaster, ...minorArcanaMaster];
+
+            const leNormandMaster = [
+                '1.騎手', '2.クローバー', '3.船', '4.家', '5.木', '6.雲',
+                '7.蛇', '8.棺', '9.花束', '10.鎌', '11.鞭', '12.鳥',
+                '13.子供', '14.狐', '15.熊', '16.星', '17.コウノトリ', '18.犬',
+                '19.塔', '20.庭園', '21.山', '22.道', '23.ネズミ', '24.ハート',
+                '25.指輪', '26.本', '27.手紙', '28.紳士', '29.淑女', '30.ユリ',
+                '31.太陽', '32.月', '33.鍵', '34.魚', '35.錨', '36.十字架'
+            ];
+
+            let currentDecks = { trump: [], 'full-tarot': [], lenormand: [] };
+
+            function shuffleDeck(deck) {
+                for (let i = deck.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [deck[i], deck[j]] = [deck[j], deck[i]];
+                }
+                return deck;
+            }
+
+            function initializeAllDecks() {
+                currentDecks.trump = shuffleDeck([...trumpCardsMaster]);
+                currentDecks['full-tarot'] = shuffleDeck([...fullTarotMaster]);
+                currentDecks.lenormand = shuffleDeck([...leNormandMaster]);
+            }
+
+            // --- 出力関数 ---
+            function appendToJournal(result) {
+                const currentText = journalTextarea.value;
+                journalTextarea.value = currentText ? `${currentText}\n${result}` : result;
+                journalTextarea.scrollTop = journalTextarea.scrollHeight;
+            }
+
+            // --- ハンドラー ---
+            function handleDiceRoll() {
+                const val = diceSelect.value;
+                let res = '';
+                if(val==='coin') res = Math.random()<0.5 ? '表' : '裏';
+                else if(val.startsWith('1d')) res = Math.floor(Math.random()*parseInt(val.substring(2)))+1;
+                else if(val.startsWith('d')) {
+                    const s = parseInt(val.substring(1,2));
+                    res = `${Math.floor(Math.random()*s)+1}${Math.floor(Math.random()*s)+1}`;
+                }
+                appendToJournal(`[${val}] → ${res}`);
+            }
+
+            function handleCardDraw() {
+                const type = cardSelect.value;
+                const count = parseInt(drawCountSelect.value);
+                if(currentDecks[type].length < count) { alert('山札不足！リセットしてください'); return; }
+                const drawn = [];
+                for(let i=0; i<count; i++) {
+                    let c = currentDecks[type].pop();
+                    if(type==='full-tarot' && Math.random()<0.5) c += ' (逆)';
+                    drawn.push(c);
+                }
+                appendToJournal(`[カード] → ${drawn.join(', ')}`);
+            }
+
+            function handleDeckReset() {
+                initializeAllDecks();
+                appendToJournal(`--- デッキをリセットしました ---`);
+            }
+
+            function handleAstroDiceRoll() {
+                const p = ['太陽','月','水星','金星','火星','木星','土星','天王星','海王星','冥王星'];
+                const s = ['牡羊','牡牛','双子','蟹','獅子','乙女','天秤','蠍','射手','山羊','水瓶','魚'];
+                const h = Array.from({length:12},(_,i)=>`${i+1}ハウス`);
+                appendToJournal(`[アストロ] → ${p[Math.floor(Math.random()*p.length)]}・${s[Math.floor(Math.random()*s.length)]}・${h[Math.floor(Math.random()*h.length)]}`);
+            }
+
+            // 積み木崩し
+            function handleBlockPull() {
+                const pos = blockPosSelect.value;
+                const speed = blockSpeedSelect.value;
+
+                // 崩壊率(%)の設定
+                let failRate = 0;
+                if (pos === 'top') failRate = 10;      // 上段：10%
+                else if (pos === 'mid') failRate = 35; // 中段：35%
+                else if (pos === 'bot') failRate = 65; // 下段：65% (危険！)
+
+                // 速度補正
+                if (speed === 'fast') failRate += 15; // 素早く：+15% (雑になる)
+                if (speed === 'slow') failRate -= 5;  // ゆっくり：-5% (慎重)
+
+                // 範囲制限 (5%〜95%)
+                if (failRate < 5) failRate = 5;
+                if (failRate > 95) failRate = 95;
+
+                const roll = Math.floor(Math.random() * 100) + 1;
+                const isCollapse = roll <= failRate;
+
+                const posText = blockPosSelect.options[blockPosSelect.selectedIndex].text;
+                const speedText = blockSpeedSelect.options[blockSpeedSelect.selectedIndex].text;
+
+                let msg = `[積み木: ${posText} / ${speedText}] (危険度:${failRate}%) → `;
+                if (isCollapse) {
+                    msg += "ガシャーン！";
+                } else {
+                    msg += "セーフ！";
+                }
+                appendToJournal(msg);
+            }
+
+            function handleCopy() {
+                navigator.clipboard.writeText(journalTextarea.value);
+                alert('コピーしました');
+            }
+            
+            function handleSave() {
+                const blob = new Blob([journalTextarea.value], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'journal.txt';
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            }
+
+            // イベント登録
+            rollDiceBtn.addEventListener('click', handleDiceRoll);
+            drawCardBtn.addEventListener('click', handleCardDraw);
+            resetDeckBtn.addEventListener('click', handleDeckReset);
+            rollAstroDiceBtn.addEventListener('click', handleAstroDiceRoll);
+            pullBlockBtn.addEventListener('click', handleBlockPull); // 積み木ボタン
+            copyBtn.addEventListener('click', handleCopy);
+            saveBtn.addEventListener('click', handleSave);
+
+            // 初期化
+            initializeAllDecks();
+        });
+    </script>
+</body>
+</html>
